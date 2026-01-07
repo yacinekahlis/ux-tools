@@ -8,20 +8,14 @@ interface ToolPageProps {
 }
 
 export function generateStaticParams() {
-  return getAllToolSlugs().map((slug) => ({
-    slug,
-  }))
+  return getAllToolSlugs().map((slug) => ({ slug }))
 }
 
 export async function generateMetadata({ params }: ToolPageProps): Promise<Metadata> {
   const { slug } = await params
   const tool = getToolBySlug(slug)
 
-  if (!tool) {
-    return {
-      title: "Tool Not Found",
-    }
-  }
+  if (!tool) return { title: "Tool Not Found" }
 
   const canonicalUrl = `${SITE_URL}/tools/${tool.slug}`
 
@@ -29,9 +23,7 @@ export async function generateMetadata({ params }: ToolPageProps): Promise<Metad
     title: tool.seo.seoTitle,
     description: tool.seo.seoDescription,
     keywords: tool.seo.targetKeywords,
-    alternates: {
-      canonical: canonicalUrl,
-    },
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: tool.seo.seoTitle,
       description: tool.seo.seoDescription,
@@ -45,9 +37,10 @@ export default async function ToolPageRoute({ params }: ToolPageProps) {
   const { slug } = await params
   const tool = getToolBySlug(slug)
 
-  if (!tool) {
-    notFound()
-  }
+  if (!tool) notFound()
 
-  return <ToolPage tool={tool} />
+  // ✅ IMPORTANT: enlever la fonction avant de passer au Client Component
+  const { calculate, ...toolSafe } = tool
+
+  return <ToolPage tool={toolSafe as any} />
 }
